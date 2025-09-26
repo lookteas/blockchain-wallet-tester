@@ -15,6 +15,7 @@
 
 
 
+```
 blockchain-wallet-tester/
 ├── README.md
 ├── go.mod
@@ -31,6 +32,9 @@ blockchain-wallet-tester/
 ├── transfer/
 │   └── batch.go
 └── .gitignore
+```
+
+
 
 ## 安装
 
