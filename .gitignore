@@ -1,0 +1,23 @@
+
+### 2. .gitignore
+
+```gitignore
+# Binary files
+wallet-tester
+*.exe
+*.out
+
+# Configuration files (sensitive)
+.env
+config/config.json
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Go
+bin/
+pkg/
