@@ -20,4 +20,3 @@ config/config.json
 
 # Go
 bin/
-pkg/
