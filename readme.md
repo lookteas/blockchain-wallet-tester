@@ -1,293 +1,281 @@
-# Blockchain Wallet Transfer Tester
+# Wallet Transfer - 区块链钱包测试工具
 
-一个用于区块链多钱包转账测试的 Go 工具，支持批量转账、并发执行、多种私钥加载方式，确保私钥安全。
+Wallet Transfer 是一个功能强大的区块链钱包转账工具，专为以太坊及其兼容网络设计。它支持批量转账操作、余额查询、并发执行和安全的私钥管理。
 
-## 功能特性
+## 🚀 主要功能
 
-- 🔒 **安全私钥管理**：支持环境变量、加密配置文件、交互式输入
-- ⚡ **批量转账**：支持多个钱包向单个或多个地址转账
-- 🚀 **并发执行**：可选择并发或顺序执行转账
-- 📊 **余额监控**：转账前后自动检查钱包余额
-- 🔄 **交易确认**：可等待交易确认后再继续
-- 🌐 **多网络支持**：支持 Ethereum、BSC、Polygon 等 EVM 兼容链
+- **多种区块链网络支持**：Ethereum、BSC、Polygon、Goerli、Sepolia、Mumbai
+- **批量转账操作**：支持一对一、一对多、多对一、多对多转账模式
+- **并发执行**：可配置的工作线程数和速率控制
+- **安全私钥管理**：支持环境变量、文件和交互式输入
+- **余额查询**：批量查询钱包余额
+- **灵活配置**：支持配置文件和命令行参数
+- **多种输出格式**：表格、JSON、CSV格式输出
 
-## 目录结构
+## 📦 安装
 
+### 从源码编译
 
-
-```
-blockchain-wallet-tester/
-├── README.md
-├── go.mod
-├── go.sum
-├── main.go
-├── config/
-│   ├── config.go
-│   └── config.example.json
-├── wallet/
-│   ├── wallet.go
-│   └── loader.go
-├── blockchain/
-│   └── client.go
-├── transfer/
-│   └── batch.go
-└── .gitignore
+```bash
+git clone <repository-url>
+cd gotester
+go build -o gotester main.go
 ```
 
+### 系统要求
 
+- Go 1.19 或更高版本
+- 网络连接（用于访问区块链RPC节点）
 
-## 安装
+## 🔧 配置
 
-### 前提条件
+### 配置文件
 
-- Go 1.20+
-- 区块链节点 RPC URL（本地测试网或测试网）
+创建 `config/config.yaml` 文件：
 
-### 使用说明
+```yaml
+# 网络配置
+networks:
+  ethereum:
+    name: "Ethereum Mainnet"
+    chain_id: 1
+    rpc_url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
+  sepolia:
+    name: "Sepolia Testnet"
+    chain_id: 11155111
+    rpc_url: "https://sepolia.infura.io/v3/YOUR_PROJECT_ID"
 
-1. **克隆项目**：
-
-   ```
-   bash
-   
-   git clone https://github.com/your-username/blockchain-wallet-tester.git
-   
-   cd blockchain-wallet-tester
-   ```
-
-   
-
-2. **安装依赖**：
-
-   ```
-   bash
-   
-   go mod tidy
-   ```
-
-   
-
-3. **编译**：
-
-   ```
-   bash
-   
-   go build -o wallet-tester
-   ```
-
-   
-
-4. **配置**（选择一种方式）：
-
-   - 环境变量方式：创建 `.env` 文件
-
-   - 配置文件方式：复制并编辑 `config/config.json`
-
-     
-
-5. **运行**：
-
-   ```
-   # 使用配置文件
-   ./wallet-tester --config config/config.json
-   
-   # 交互式模式
-   ./wallet-tester --interactive
-   
-   # 仅查看余额
-   ./wallet-tester --balance-only
-   ```
-
-   
-
-​	
-
-
-
-## 编译
-
-go build -o wallet-tester
-
-
-
-## 配置
-
-
-
-### 1. 环境变量配置（推荐用于开发）
-
-创建 `.env` 文件：
-
-cp .env.example .env
-
-
-
-编辑 `.env` 文件：
-
-```
-# 区块链 RPC URL
-RPC_URL=http://localhost:8545
-
-# 转账金额（单位：wei）
-TRANSFER_AMOUNT=10000000000000000
-
-# 目标地址（多个地址用逗号分隔）
-TARGET_ADDRESSES=0x742d35Cc6634C0532925a3b8D4C9db9653fE8b01,0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199
-
-# 私钥（多个私钥用逗号分隔，仅用于开发环境）
-WALLET_PRIVATE_KEYS=your_private_key_1,your_private_key_2
+# 默认设置
+defaults:
+  network: "sepolia"
+  concurrent: true
+  workers: 10
+  timeout: 300
+  confirmations: 1
 ```
 
+### 环境变量
 
+设置私钥环境变量：
 
+```bash
+# Windows
+set PRIVATE_KEYS=0x1234...,0x5678...
 
-
-### 2. 配置文件方式（推荐用于生产）
-
-复制配置文件模板：
-
-```
-cp config/config.example.json config/config.json
-```
-
-
-
-编辑 `config/config.json`：
-
-
-
-```
-{
-  "rpc_url": "http://localhost:8545",
-  "transfer_amount": "10000000000000000",
-  "target_addresses": [
-    "0x742d35Cc6634C0532925a3b8D4C9db9653fE8b01",
-    "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
-  ],
-  "private_keys": [
-    "your_private_key_1",
-    "your_private_key_2"
-  ],
-  "concurrent": true,
-  "wait_confirmations": true,
-  "confirmations": 1
-}
+# Linux/Mac
+export PRIVATE_KEYS=0x1234...,0x5678...
 ```
 
+## 📖 使用指南
 
+### 基本命令
 
-## 使用方法
-
-### 1. 基本使用
-
-
-
-```
-# 使用环境变量
-./wallet-tester
-
-# 使用配置文件
-./wallet-tester --config config/config.json
-
-# 交互式模式（私钥不会保存在任何文件中）
-./wallet-tester --interactive
-```
-
-
-
-### 2. 命令行参数
-
-```
+```bash
 # 查看帮助
-./wallet-tester --help
+./gotester --help
 
-# 指定配置文件
-./wallet-tester --config /path/to/config.json
+# 查看转账命令帮助
+./gotester transfer --help
 
-# 启用交互式模式
-./wallet-tester --interactive
-
-# 仅显示余额（不执行转账）
-./wallet-tester --balance-only
-
-# 指定并发数
-./wallet-tester --concurrent
+# 查看余额命令帮助
+./gotester balance --help
 ```
 
+### 余额查询
 
+```bash
+# 查询钱包余额（从环境变量读取私钥）
+./gotester balance --network sepolia
 
-### 3. 环境变量优先级
+# 查询指定地址余额
+./gotester balance --addresses 0x1234...,0x5678... --network sepolia
 
-环境变量 > 配置文件 > 默认值
+# 以JSON格式输出
+./gotester balance --output json --network sepolia
 
-
-
-### 4. 安全注意事项
-
-⚠️ **重要安全提醒**：
-
-1. **永远不要**将私钥提交到版本控制系统
-2. **测试网络**：仅在测试网络或本地开发网络使用
-3. **权限控制**：确保配置文件权限设置正确（`chmod 600 config.json`）
-4. **生产环境**：生产环境应使用专业的密钥管理服务
-
-
-
-## 示例场景
-
-### 场景1：多个钱包向同一个地址转账
-
-env
-
-```
-TARGET_ADDRESSES=0x742d35Cc6634C0532925a3b8D4C9db9653fE8b01
+# 以ETH为单位显示
+./gotester balance --unit ether --network sepolia
 ```
 
+### 转账操作
 
+#### 一对一转账
 
-### 场景2：多个钱包向多个地址轮询转账
-
-env
-
+```bash
+./gotester transfer \
+  --mode one-to-one \
+  --recipients 0x1234...,0x5678... \
+  --amount 0.01 \
+  --unit ether \
+  --network sepolia
 ```
-TARGET_ADDRESSES=0x742d35Cc6634C0532925a3b8D4C9db9653fE8b01,0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199
+
+#### 一对多转账
+
+```bash
+./gotester transfer \
+  --mode one-to-many \
+  --recipients 0x1234...,0x5678...,0x9abc... \
+  --amount 0.005 \
+  --unit ether \
+  --network sepolia
 ```
 
+#### 多对一转账
 
-
-### 场景3：并发转账测试
-
-json
-
+```bash
+./gotester transfer \
+  --mode many-to-one \
+  --recipients 0x1234... \
+  --amount 0.01 \
+  --unit ether \
+  --network sepolia
 ```
+
+#### 多对多转账
+
+```bash
+./gotester transfer \
+  --mode many-to-many \
+  --recipients 0x1234...,0x5678... \
+  --amount-range 0.001-0.01 \
+  --unit ether \
+  --network sepolia
+```
+
+### 高级选项
+
+```bash
+# 启用并发执行，设置工作线程数
+./gotester transfer \
+  --mode one-to-many \
+  --recipients 0x1234... \
+  --amount 0.01 \
+  --concurrent \
+  --workers 20 \
+  --network sepolia
+
+# 自定义Gas设置
+./gotester transfer \
+  --mode one-to-one \
+  --recipients 0x1234... \
+  --amount 0.01 \
+  --gas-limit 25000 \
+  --gas-price 20000000000 \
+  --network sepolia
+
+# 设置确认数和超时时间
+./gotester transfer \
+  --mode one-to-one \
+  --recipients 0x1234... \
+  --amount 0.01 \
+  --confirmations 3 \
+  --timeout 600 \
+  --network sepolia
+```
+
+## 🔒 安全指南
+
+### 私钥管理
+
+1. **环境变量方式**（推荐用于开发环境）：
+   ```bash
+   export PRIVATE_KEYS=0x1234...,0x5678...
+   ```
+
+2. **文件方式**：
+   创建 `private_keys.txt` 文件，每行一个私钥
+   ```
+   0x1234567890abcdef...
+   0xfedcba0987654321...
+   ```
+
+3. **交互式输入**（最安全）：
+   ```bash
+   ./gotester transfer --private-keys interactive
+   ```
+
+### 安全建议
+
+- ⚠️ **永远不要在生产环境中使用明文私钥**
+- 🔐 使用硬件钱包或安全的密钥管理服务
+- 🧪 在测试网络上充分测试后再在主网使用
+- 💰 转账前确认余额充足（包括Gas费用）
+- 🔍 仔细检查收款地址的正确性
+- 📊 使用小额测试验证配置正确性
+
+## 🛠️ 故障排除
+
+### 常见问题
+
+1. **连接RPC节点失败**
+   - 检查网络连接
+   - 验证RPC URL是否正确
+   - 确认API密钥有效（如使用Infura等服务）
+
+2. **私钥格式错误**
+   - 确保私钥以 `0x` 开头
+   - 验证私钥长度为64个十六进制字符
+
+3. **余额不足**
+   - 检查钱包ETH余额是否足够支付Gas费用
+   - 验证转账金额设置是否正确
+
+4. **Gas费用过高**
+   - 使用 `--auto-gas` 自动估算Gas
+   - 手动设置合适的 `--gas-price`
+
+### 调试模式
+
+```bash
+# 启用详细日志
+./gotester transfer --mode one-to-one --recipients 0x... --amount 0.01 --verbose
+
+# 输出为JSON格式便于分析
+./gotester transfer --mode one-to-one --recipients 0x... --amount 0.01 --output json
+```
+
+## 📊 输出格式
+
+### 表格格式（默认）
+```
+=== 转账结果摘要 ===
++----------+-------+
+|   指标   |  值   |
++----------+-------+
+| 总任务数 |   5   |
+| 成功     |   4   |
+| 失败     |   1   |
++----------+-------+
+```
+
+### JSON格式
+```json
 {
-  "concurrent": true
+  "total_tasks": 5,
+  "successful": 4,
+  "failed": 1,
+  "total_amount": "50000000000000000",
+  "total_fees": "1050000000000000",
+  "duration": "45.2s",
+  "tasks": [...]
 }
 ```
 
-### 输出示例
-
-
-
-```
-Starting batch transfer with 3 wallets to 2 addresses
-Wallet 0x123...456 balance: 1000000000000000000 wei
-Wallet 0x789...012 balance: 1000000000000000000 wei
-Wallet 0x345...678 balance: 1000000000000000000 wei
-
-Sending transactions...
-Sent transaction from 0x123...456 to 0x742...8b01, tx hash: 0xabc...def
-Sent transaction from 0x789...012 to 0x862...1199, tx hash: 0xghi...jkl
-Sent transaction from 0x345...678 to 0x742...8b01, tx hash: 0xmnop...qrst
-
-Waiting for transaction confirmations...
-Transaction 0xabc...def confirmed
-Transaction 0xghi...jkl confirmed
-Transaction 0xmnop...qrst confirmed
-
-Final balances:
-Address 0x123...456: 990000000000000000 wei
-Address 0x789...012: 990000000000000000 wei
-Address 0x345...678: 990000000000000000 wei
+### CSV格式
+```csv
+TaskID,From,To,Amount,Status,TxHash,Error,Duration
+task-1,0x1234...,0x5678...,10000000000000000,completed,0xabcd...,,"2.1s"
 ```
 
+## 🤝 贡献
+
+欢迎提交Issue和Pull Request来改进这个项目。
+
+## 📄 许可证
+
+本项目采用MIT许可证。详见 [LICENSE](LICENSE) 文件。
+
+## ⚠️ 免责声明
+
+本工具仅用于测试目的。使用者需要自行承担使用风险，开发者不对任何损失负责。在主网使用前请务必在测试网络上充分测试。
