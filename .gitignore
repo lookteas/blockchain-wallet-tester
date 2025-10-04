@@ -1,22 +1,99 @@
-
-### 2. .gitignore
-
-```gitignore
-# Binary files
-wallet-tester
+# Go语言相关
 *.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
 *.out
+go.work
 
-# Configuration files (sensitive)
-.env
-config/config.json
+# 构建输出目录
+/build/
+/dist/
+/bin/
 
-# IDE
+# 依赖管理
+vendor/
+
+# IDE和编辑器文件
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# Logs
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 日志文件
 *.log
+logs/
 
-# Go
-bin/
+# 临时文件
+*.tmp
+*.temp
+temp/
+tmp/
+
+# 配置文件（保留示例文件）
+configs/config.yaml
+configs/recipients.xlsx
+configs/.env
+
+# 数据文件和报告
+*.json
+!configs/*.example.*
+!configs/*.example
+
+# 密钥和敏感信息
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# 测试覆盖率报告
+coverage.out
+coverage.html
+
+# 性能分析文件
+*.prof
+*.pprof
+
+# 备份文件
+*.bak
+*.backup
+*.orig
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 缓存目录
+.cache/
+cache/
+
+# 其他
+*.pid
+*.seed
+*.pid.lock

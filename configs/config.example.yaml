@@ -1,0 +1,26 @@
+# 批量转账配置文件示例
+transfer:
+  token_address: ""  # 留空表示ETH转账，如需ERC20代币转账请填入代币合约地址
+
+data_sources:
+  recipients_xlsx: "./configs/recipients.xlsx"  # 接收方Excel文件路径
+
+# RPC节点配置（可选，支持环境变量）
+# 优先级：配置文件 > 环境变量 > 默认节点
+rpc_config:
+  # 可以直接配置URL
+  sepolia: "https://sepolia.drpc.org"
+  goerli: "https://rpc.ankr.com/eth_goerli"
+  mainnet: "https://ethereum.publicnode.com"
+  bnb: "https://bsc-dataseed.binance.org/"
+  polygon: "https://polygon-rpc.com/"
+  
+  # 或者使用环境变量（推荐用于API密钥）
+  # sepolia: "${SEPOLIA_RPC_URL}"
+  # mainnet: "${MAINNET_RPC_URL}"
+
+# API密钥配置（从环境变量读取）
+api_keys:
+  infura: "${INFURA_API_KEY}"
+  alchemy: "${ALCHEMY_API_KEY}"
+  ankr: "${ANKR_API_KEY}"
