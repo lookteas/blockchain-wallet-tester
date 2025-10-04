@@ -66,7 +66,7 @@ cp configs/env.example .env
 
 ## 详细文档
 
-- [使用说明](docs/USAGE.md) - 详细的使用指南
+- [使用说明](docs/README.md) - 详细的使用指南
 - [环境变量配置](docs/ENV_CONFIG.md) - 环境变量配置说明
 - [RPC配置](docs/RPC_CONFIG.md) - RPC节点配置说明
 - [架构文档](docs/ARCHITECTURE.md) - 项目架构说明

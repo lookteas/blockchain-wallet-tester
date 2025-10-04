@@ -76,7 +76,7 @@ func BatchCommand(c *cli.Context) error {
 	}
 
 	// 生成报告
-	reportFile := fmt.Sprintf("batch_report_%d.json", time.Now().Unix())
+	reportFile := fmt.Sprintf("data/batch_report_%d.md", time.Now().Unix())
 	err = config.SaveReport(report, reportFile)
 	if err != nil {
 		fmt.Printf("⚠️  报告保存失败: %v\n", err)

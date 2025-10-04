@@ -15,6 +15,7 @@ go.work
 
 # 依赖管理
 vendor/
+!pkg/
 
 # IDE和编辑器文件
 .vscode/
@@ -48,9 +49,8 @@ configs/recipients.xlsx
 configs/.env
 
 # 数据文件和报告
-*.json
-!configs/*.example.*
-!configs/*.example
+data/*.md
+!data/.gitkeep
 
 # 密钥和敏感信息
 *.key

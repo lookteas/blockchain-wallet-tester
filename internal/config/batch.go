@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -229,22 +228,99 @@ func LoadRecipients(xlsxFile string) ([]Recipient, error) {
 
 // SaveReport 保存批量转账报告
 func SaveReport(report *BatchReport, filename string) error {
-	// 创建JSON文件
+	// 确保data目录存在
+	if err := os.MkdirAll("data", 0755); err != nil {
+		return fmt.Errorf("创建data目录失败: %v", err)
+	}
+
+	// 创建Markdown文件
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("创建报告文件失败: %v", err)
 	}
 	defer file.Close()
 
-	// 编码为JSON
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	err = encoder.Encode(report)
+	// 生成Markdown内容
+	content := generateMarkdownReport(report)
+	_, err = file.WriteString(content)
 	if err != nil {
-		return fmt.Errorf("编码报告失败: %v", err)
+		return fmt.Errorf("写入报告失败: %v", err)
 	}
 
 	return nil
+}
+
+// generateMarkdownReport 生成Markdown格式的报告
+func generateMarkdownReport(report *BatchReport) string {
+	var content strings.Builder
+
+	// 标题
+	content.WriteString("# 批量转账报告\n\n")
+
+	// 基本信息
+	content.WriteString("## 基本信息\n\n")
+	content.WriteString(fmt.Sprintf("- **时间**: %s\n", report.Timestamp.Format("2006-01-02 15:04:05")))
+	content.WriteString(fmt.Sprintf("- **网络**: %s\n", report.Network))
+	content.WriteString(fmt.Sprintf("- **链ID**: %s\n\n", report.ChainID))
+
+	// 汇总信息
+	content.WriteString("## 转账汇总\n\n")
+	content.WriteString("| 项目 | 数量 |\n")
+	content.WriteString("|------|------|\n")
+	content.WriteString(fmt.Sprintf("| 总计 | %d |\n", report.Summary.Total))
+	content.WriteString(fmt.Sprintf("| 成功 | %d |\n", report.Summary.Success))
+	content.WriteString(fmt.Sprintf("| 失败 | %d |\n", report.Summary.Failed))
+	content.WriteString(fmt.Sprintf("| 成功率 | %.2f%% |\n\n", float64(report.Summary.Success)/float64(report.Summary.Total)*100))
+
+	// 成功转账详情
+	if report.Summary.Success > 0 {
+		content.WriteString("## 成功转账详情\n\n")
+		content.WriteString("| 序号 | 接收地址 | 金额(ETH) | 发送地址 | 交易哈希 | 区块浏览器 |\n")
+		content.WriteString("|------|----------|-----------|----------|----------|------------|\n")
+
+		for _, detail := range report.Details {
+			if detail.Status == "success" {
+				content.WriteString(fmt.Sprintf("| %d | %s | %.6f | %s | [%s](%s) | [查看](%s) |\n",
+					detail.Index+1,
+					detail.Recipient.Address,
+					detail.Recipient.Amount,
+					detail.Sender,
+					detail.TxHash[:10]+"...",
+					detail.TxHash,
+					detail.Explorer))
+			}
+		}
+		content.WriteString("\n")
+	}
+
+	// 失败转账详情
+	if report.Summary.Failed > 0 {
+		content.WriteString("## 失败转账详情\n\n")
+		content.WriteString("| 序号 | 接收地址 | 金额(ETH) | 错误信息 |\n")
+		content.WriteString("|------|----------|-----------|----------|\n")
+
+		for _, detail := range report.Details {
+			if detail.Status == "failed" {
+				content.WriteString(fmt.Sprintf("| %d | %s | %.6f | %s |\n",
+					detail.Index+1,
+					detail.Recipient.Address,
+					detail.Recipient.Amount,
+					detail.Error))
+			}
+		}
+		content.WriteString("\n")
+	}
+
+	// 统计信息
+	content.WriteString("## 统计信息\n\n")
+	content.WriteString(fmt.Sprintf("- 报告生成时间: %s\n", time.Now().Format("2006-01-02 15:04:05")))
+	content.WriteString("- 报告格式: Markdown\n")
+	content.WriteString("- 工具版本: Transfer Tool v1.0\n\n")
+
+	content.WriteString("---\n")
+	content.WriteString("*此报告由 Transfer Tool 自动生成*\n")
+
+	return content.String()
 }
 
 // AddSuccessDetail 添加成功记录
