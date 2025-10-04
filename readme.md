@@ -6,24 +6,38 @@
 
 ```
 transfer-tool/
-├── cmd/                    # 应用程序入口
-│   └── transfer-tool/      # 主程序
-├── internal/               # 内部包（不对外暴露）
-│   ├── wallet/            # 钱包管理
-│   ├── commands/          # 命令处理
-│   └── config/            # 配置管理
-├── pkg/                   # 可复用的包
-│   ├── ethereum/          # 以太坊相关工具
-│   └── excel/             # Excel处理工具
-├── configs/               # 配置文件
-│   ├── config.example.yaml
-│   ├── env.example
-│   └── recipients.xlsx
-├── docs/                  # 文档
-│   ├── README.md          # 详细说明
-│   ├── USAGE.md           # 使用指南
-│   └── prd.md             # 需求文档
-└── go.mod                 # Go模块定义
+├── cmd/transfer-tool/          # 主程序入口
+│   └── main.go
+├── internal/                   # 内部包
+│   ├── commands/              # 命令实现
+│   │   ├── balance.go         # 余额查询
+│   │   ├── batch.go           # 批量转账
+│   │   └── send.go            # 单笔转账
+│   ├── config/                # 配置管理
+│   │   ├── app.go             # 应用配置
+│   │   └── batch.go           # 批量转账配置
+│   └── wallet/                # 钱包管理
+│       └── manager.go
+├── pkg/                       # 公共包
+│   ├── ethereum/              # 以太坊相关
+│   └── excel/                 # Excel处理
+├── configs/                   # 配置文件
+│   ├── config.example.yaml    # 配置示例
+│   ├── config.yaml            # 实际配置
+│   ├── env.example            # 环境变量示例
+│   ├── recipients.example.xlsx # 接收方示例
+│   └── recipients.xlsx        # 实际接收方数据
+├── data/                      # 数据目录
+│   ├── .gitkeep              # 保持目录结构
+│   └── batch_report_*.md     # 批量转账报告
+├── docs/                      # 文档
+│   ├── README.md             # 使用说明
+│   ├── ARCHITECTURE.md       # 架构文档
+│   └── ...                   # 其他文档
+├── go.mod                     # Go模块文件
+├── go.sum                     # 依赖校验文件
+├── transfer-tool.exe          # 编译后的可执行文件
+└── README.md                  # 项目说明
 ```
 
 ## 快速开始
@@ -62,7 +76,7 @@ cp configs/env.example .env
 - ⚖️ **批量轮询**: 自动轮询使用所有钱包
 - 🌐 **多网络支持**: Sepolia、Goerli、Mainnet、BNB、Polygon
 - ⚙️ **RPC配置**: 支持自定义RPC节点，提高连接稳定性
-- 📊 **审计留痕**: 完整的操作记录和报告
+- 📊 **Markdown报告**: 生成格式化的Markdown报告，保存在data目录
 
 ## 详细文档
 
